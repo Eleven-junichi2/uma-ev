@@ -34,7 +34,6 @@ def dataframe_from_html(html_data: str) -> pd.DataFrame:
         row_data = {}
         for class_ in htmlclass2field.keys():
             if data := html_row.find("td", {"class": class_}):
-                print(data.get_text())
                 row_data[htmlclass2field[class_]] = data.get_text()
         dataframe = pd.concat([dataframe, pd.DataFrame([row_data])], ignore_index=True)
     dataframe["オッズ"] = pd.to_numeric(dataframe["オッズ"], errors="coerce")
