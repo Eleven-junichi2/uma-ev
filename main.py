@@ -1,73 +1,77 @@
-import requests
+import re
+import sys
+
 from bs4 import BeautifulSoup
+import numpy as np
+from selenium import webdriver
+from selenium.webdriver.firefox.options import Options
+import pandas as pd
 
-def fetch_single_horse_data(url):
-    """
-    Netkeibaの単勝オッズページから、ID='ninki-data-1' のtrタグの内容を抽出します。
-    """
-    # URLに単勝オッズのパラメータ '&type=b1' を確実に追加
-    target_url = url
-    if "&type=b1" not in target_url:
-        target_url += "&type=b1" if "?" in target_url else "?type=b1"
-    
-    print(f"✅ URL: {target_url} からデータを取得しています...")
-    
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-    }
-    
+
+def fetch_html(url: str) -> str:
+    driver_options = Options()
+    driver_options.add_argument("--headless")
     try:
-        # ページにアクセス
-        response = requests.get(target_url, headers=headers, timeout=10)
-        response.raise_for_status() 
-        
-    except requests.exceptions.RequestException as e:
-        print(f"❌ データの取得中にエラーが発生しました: {e}")
-        return
+        driver = webdriver.Firefox(options=driver_options)
+        driver.implicitly_wait(5)
+        driver.get(url)
+        html_data = driver.page_source
+    finally:
+        driver.quit()
+    return html_data
 
-    # HTMLをBeautifulSoupで解析
-    soup = BeautifulSoup(response.content, 'html.parser')
-    
-    # ★ 最小目標: ID='ninki-data-1' の<tr>タグを直接検索 ★
-    target_row = soup.find('tr', id='ninki-data-1')
-    
-    if target_row is None:
-        print("⚠️ ID='ninki-data-1' のデータ行が見つかりませんでした。")
-        return
 
-    print("\n--- 🐴 ID='ninki-data-1' のデータ行の内容 ---")
-    
-    # <tr>タグ内のすべての<td>要素を取得
-    cols = target_row.find_all('td')
-    
-    print(f"取得した <td> 要素の数: {len(cols)}")
-    
-    # 各<td>要素の内容をインデックス付きで出力
-    for i, col in enumerate(cols):
-        # 要素内の改行やスペースを削除して内容を表示
-        content = col.text.strip().replace('\n', ' ').replace('  ', ' ')
-        print(f"  [{i}|{col.get("class")}]: {content}")
+def dataframe_from_html(html_data: str) -> pd.DataFrame:
+    soup = BeautifulSoup(html_data, "html.parser")
+    html_table = soup.find("table", {"class": "RaceOdds_HorseList_Table"})
+    dataframe = pd.DataFrame()
+    if html_table is None:
+        print("データ取得先のテーブルが見つかりませんでした。")
+        print("URLやレースIDが正しいか確認してください。")
+        sys.exit(1)
+    for html_row in html_table.find_all("tr", {"id": re.compile(r"ninki-data-\d+")}):
+        htmlclass2field = {"Horse_Name": "馬名", "Odds": "オッズ"}
+        row_data = {}
+        for class_ in htmlclass2field.keys():
+            if data := html_row.find("td", {"class": class_}):
+                print(data.get_text())
+                row_data[htmlclass2field[class_]] = data.get_text()
+        dataframe = pd.concat([dataframe, pd.DataFrame([row_data])], ignore_index=True)
+    dataframe["オッズ"] = pd.to_numeric(dataframe["オッズ"], errors="coerce")
+    return dataframe
 
-# class NetkeibaScraper:
-#     """
-#     Netkeibaの予想オッズページからデータを抽出するクラス。
-#     """
-#     def __init__(self, race_id):
-#         self.base_url = base_url
-    
-#     def fetch_odds_card(self):
-#         """
-#         指定されたURLからデータを取得し、ID='ninki-data-1' の<tr>タグの内容を抽出します。
-#         """
-#         fetch_single_horse_data(self.base_url)
+def scraping_prompt() -> pd.DataFrame:
+    if len(sys.argv) < 2:
+        race_id = input("レースIDを入力してください (例: 202505050611): ")
+        if race_id == "":
+            race_id = "202505050611"
+    url = f"https://race.netkeiba.com/odds/index.html?race_id={race_id}"
+    dataframe = dataframe_from_html(fetch_html(url))
+    dataframe.to_csv(f"{race_id}.csv", index=False)
+    return dataframe
 
-# --- 実行部分 ---
+def main():
+    # TODO: すでにcsvが存在する場合は、存在するリストを表示して選択できるようにする。読み込む時、更新するかどうかも選択できるようにする。
+    dataframe = scraping_prompt()
+    print(
+        dataframe.sort_values(
+            "オッズ",
+            ascending=True,
+        )
+    )
+    dataframe["評価点"] = np.nan
+    dataframe["期待値"] = np.nan
+    print()
+    for idx, row in dataframe.iterrows():
+        score = float(input(f"{row['馬名']}の評価点: "))
+        dataframe.at[idx, "評価点"] = score  # type: ignore
+    print()
+    for idx, row in dataframe.iterrows():
+        if row["オッズ"] > 0:
+            expected_value = row["オッズ"] * row["評価点"] / dataframe["評価点"].sum()
+            dataframe.at[idx, "期待値"] = expected_value  # type: ignore
+    print(dataframe.sort_values("期待値", ascending=False))
+
+
 if __name__ == "__main__":
-    print("--- 🐴 最小限のデバッグプログラム ---")
-    
-    target_url = input("予想オッズメニューのURLを入力してください: ")
-    
-    if not target_url:
-        print("URLが入力されませんでした。プログラムを終了します。")
-    else:
-        fetch_single_horse_data(target_url)
+    main()
