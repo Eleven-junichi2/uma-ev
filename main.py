@@ -234,9 +234,9 @@ def prediction(
 
     # 結果計算
     df_result["統合勝率"] = win_rate
-    df_result["期待値"] = df_result["オッズ"] * df_result["統合勝率"]
+    df_result["対数期待値"] = np.log(df_result["オッズ"]) * df_result["統合勝率"]
 
-    return df_result.sort_values(by="期待値", ascending=False).reset_index(drop=True)
+    return df_result.sort_values(by="対数期待値", ascending=False).reset_index(drop=True)
 
 
 def main():
@@ -432,14 +432,14 @@ def main():
 
     # 表示用カラムの選定
     contribution_cols = [c for c in df_result.columns if c.startswith("寄与_")]
-    display_cols = ["馬名", "オッズ"] + contribution_cols + ["統合勝率", "期待値"]
+    display_cols = ["馬名", "オッズ"] + contribution_cols + ["統合勝率", "対数期待値"]
 
     df_display = df_result[display_cols].copy()
 
     # パーセント表示化
     for col in contribution_cols + ["統合勝率"]:
         df_display[col] = df_display[col].map(lambda x: f"{x * 100:.2f}%")
-    df_display["期待値"] = df_display["期待値"].map(lambda x: f"{x:.2f}")
+    df_display["対数期待値"] = df_display["対数期待値"].map(lambda x: f"{x:.2f}")
 
     print(df_display)
     df_result.to_csv(result_filepath, index=False)
