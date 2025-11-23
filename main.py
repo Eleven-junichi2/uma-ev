@@ -1,3 +1,6 @@
+# TODO: コードの整理
+# TODO: ev_factorsで扱える結合キーとして「人気」を追加する
+
 import re
 import sys
 from datetime import datetime
@@ -9,6 +12,8 @@ import pandas as pd
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
+
+from scraper import extract_racecard_from_netkeiba_html
 
 WIN_RATE_BY_FAVORITE = (
     0.327,
@@ -138,7 +143,7 @@ def input_ev_factors_manually(
     return df_scores, df_probs
 
 
-def softmax(x):
+def softmax(x: np.ndarray):
     """ソフトマックス関数: 数値の配列を確率分布（合計1.0）に変換する"""
     if np.all(x == x[0]):
         return np.full(x.shape, 1.0 / len(x))
@@ -234,9 +239,12 @@ def prediction(
 
     # 結果計算
     df_result["統合勝率"] = win_rate
-    df_result["対数期待値"] = np.log(df_result["オッズ"]) * df_result["統合勝率"]
+    df_result["対数期待値"] = np.log(df_result["オッズ"] * df_result["統合勝率"])
+    df_result["対数補正オッズ期待値"] = np.log(df_result["オッズ"]) * df_result["統合勝率"]
 
-    return df_result.sort_values(by="対数期待値", ascending=False).reset_index(drop=True)
+    return df_result.sort_values(by="対数補正オッズ期待値", ascending=False).reset_index(
+        drop=True
+    )
 
 
 def main():
@@ -432,7 +440,7 @@ def main():
 
     # 表示用カラムの選定
     contribution_cols = [c for c in df_result.columns if c.startswith("寄与_")]
-    display_cols = ["馬名", "オッズ"] + contribution_cols + ["統合勝率", "対数期待値"]
+    display_cols = ["馬名", "オッズ"] + contribution_cols + ["統合勝率", "対数期待値", "対数補正オッズ期待値"]
 
     df_display = df_result[display_cols].copy()
 
@@ -443,9 +451,7 @@ def main():
 
     print(df_display)
     df_result.to_csv(result_filepath, index=False)
-    df_result.to_html(
-        result_filepath.with_suffix(".html"), index=False
-    )
+    df_result.to_html(result_filepath.with_suffix(".html"), index=False)
     print(f"\n結果を保存しました: {result_filepath}")
 
 
