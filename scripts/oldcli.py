@@ -10,10 +10,9 @@ from urllib.parse import urlparse
 import numpy as np
 import pandas as pd
 from bs4 import BeautifulSoup
-from selenium import webdriver
-from selenium.webdriver.firefox.options import Options
 
-from scraper import extract_racecard_from_netkeiba_html
+
+from odds2ev.scraping import extract_racecard_from_netkeiba_html
 
 WIN_RATE_BY_FAVORITE = (
     0.327,
@@ -38,17 +37,7 @@ WIN_RATE_BY_FAVORITE = (
 WIN_RATE_BY_FAVORITE_LABELNAME = "人気別勝率"
 
 
-def fetch_html(url: str) -> str:
-    driver_options = Options()
-    driver_options.add_argument("--headless")
-    try:
-        driver = webdriver.Firefox(options=driver_options)
-        driver.implicitly_wait(5)
-        driver.get(url)
-        html_data = driver.page_source
-    finally:
-        driver.quit()
-    return html_data
+
 
 
 def extract_racecard_from_netkeiba_html(html_data: str) -> pd.DataFrame:

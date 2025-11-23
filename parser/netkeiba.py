@@ -1,11 +1,13 @@
-import re
 import sys
+import re
+
 from bs4 import BeautifulSoup
+import numpy as np
 import pandas as pd
 
 
-def extract_racecard_from_netkeiba_html(html_data: str) -> pd.DataFrame:
-    soup = BeautifulSoup(html_data, "html.parser")
+def racecard(html: str) -> pd.DataFrame:
+    soup = BeautifulSoup(html, "html.parser")
     html_table = soup.find("table", {"class": "RaceOdds_HorseList_Table"})
     dataframe = pd.DataFrame()
     if html_table is None:
