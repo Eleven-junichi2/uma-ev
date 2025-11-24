@@ -56,5 +56,8 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    # 実行
-    run(recipe_filepath=args.recipe_path, data_dir=args.data_dir, output_dir=args.output_dir)
+    run(
+        recipe_filepath=args.recipe_path,
+        data_dir=args.data_dir,
+        output_dir=args.output_dir,
+    )
