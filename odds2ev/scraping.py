@@ -28,7 +28,7 @@ class ParserFinder:
 
     def register(self, url_pattern: str, parser: ParserFunc) -> None:
         """
-        URLパターンとパーサー関数を登録する。
+        URLパターンとそのURLから取得されるhtmlに適したパーサー関数を登録する。
         """
         compiled_pattern = re.compile(url_pattern)
         self.__parsers.append((compiled_pattern, parser))

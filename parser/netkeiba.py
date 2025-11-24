@@ -7,9 +7,12 @@ import pandas as pd
 
 
 def racecard(html: str) -> pd.DataFrame:
+    """
+    馬名,オッズ,人気を列とする形式の出馬表をhtmlから取得する。
+    """
     soup = BeautifulSoup(html, "html.parser")
     html_table = soup.find("table", {"class": "RaceOdds_HorseList_Table"})
-    dataframe = pd.DataFrame()
+    df = pd.DataFrame()
     if html_table is None:
         print("データ取得先のテーブルが見つかりませんでした。")
         print("URLやレースIDが正しいか確認してください。")
@@ -26,6 +29,7 @@ def racecard(html: str) -> pd.DataFrame:
                         row_data[htmlclass2field[class_]] = None
                 else:
                     row_data[htmlclass2field[class_]] = data.get_text()
-        dataframe = pd.concat([dataframe, pd.DataFrame([row_data])], ignore_index=True)
-    dataframe["オッズ"] = pd.to_numeric(dataframe["オッズ"], errors="coerce")
-    return dataframe
+        df = pd.concat([df, pd.DataFrame([row_data])], ignore_index=True)
+    df["オッズ"] = pd.to_numeric(df["オッズ"], errors="coerce")
+    df["人気"] = range(1, len(df) + 1)
+    return df
