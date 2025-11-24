@@ -1,7 +1,7 @@
 import pandas as pd
 
-from odds2ev.transforms import normalize, softmax
-from odds2ev.predictor import prediction
+from umaev.transforms import normalize, softmax
+from umaev.predictor import prediction
 
 def test():
     racecard = pd.DataFrame(

@@ -1,6 +1,4 @@
 from collections.abc import Callable
-from typing import TypeVar, Generic
-from re import Pattern
 import re
 
 import pandas as pd

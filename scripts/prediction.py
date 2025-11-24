@@ -5,8 +5,8 @@ import json
 import pandas as pd
 
 import __init__  # noqa: F401
-from odds2ev.predictor import prediction
-from odds2ev.transforms import normalize, softmax, standardize
+from umaev.predictor import prediction
+from umaev.transforms import normalize, softmax, standardize
 
 
 def run(recipe_filepath: Path, data_dir: Path, output_dir: Path):

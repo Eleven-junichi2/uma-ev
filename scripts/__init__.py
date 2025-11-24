@@ -3,7 +3,7 @@ import os
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from odds2ev.scraping import ParserFinder
+from umaev.scraping import ParserFinder
 from parser import netkeiba
 
 parser_finder = ParserFinder()

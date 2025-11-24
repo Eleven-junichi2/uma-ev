@@ -1,6 +1,6 @@
 [project]
-name = "netoke-odds2ev"
-version = "0.1.0"
+name = "uma-ev"
+version = "1.0.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
