@@ -31,7 +31,9 @@ def run(recipe_filepath: Path, data_dir: Path, output_dir: Path):
     )
     print(df)
     output_dir.mkdir(exist_ok=True)
-    df.to_csv(output_dir / rf"{recipe['racecard']}.csv")
+    save_filepath = output_dir / rf"{recipe['racecard']}"
+    df.to_csv(save_filepath.with_suffix(".csv"))
+    df.to_html(save_filepath.with_suffix(".html"))
 
 
 if __name__ == "__main__":
