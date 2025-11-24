@@ -13,3 +13,7 @@ wheels/
 data/
 recipes/
 output/
+
+# misc
+scripts/fetch_racecard_from_*
+parser/netkeiba.py
