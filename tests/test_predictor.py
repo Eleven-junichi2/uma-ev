@@ -1,6 +1,6 @@
 import pandas as pd
 
-from umaev.ops import normalize, softmax
+from umaev.calc import normalize, softmax
 from umaev.predictor import prediction
 
 def test():

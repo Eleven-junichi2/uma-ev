@@ -6,7 +6,7 @@ import pandas as pd
 
 import __init__  # noqa: F401
 from umaev.predictor import prediction
-from umaev.ops import normalize, softmax, standardize
+from umaev.calc import normalize, softmax, standardize
 
 
 def run(recipe_filepath: Path, data_dir: Path, output_dir: Path):
