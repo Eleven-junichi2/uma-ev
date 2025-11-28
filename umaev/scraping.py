@@ -1,9 +1,6 @@
-from collections.abc import Callable
-import re
-
-import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
+
 
 def fetch_html(url: str) -> str:
     driver_options = Options()

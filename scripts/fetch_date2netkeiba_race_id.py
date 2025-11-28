@@ -26,6 +26,7 @@ def run(
     if output_filepath:
         with open(output_filepath, "w", encoding="utf-8") as f:
             json.dump(date2race_id, f, ensure_ascii=False, indent=4)
+            print(f"保存しました：{output_filepath}")
     print(date2race_id)
     return date2race_id
 
