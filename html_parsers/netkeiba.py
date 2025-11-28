@@ -34,6 +34,19 @@ def odds(html: str) -> pd.DataFrame:
     return df
 
 
+def raceinfo(html: str) -> dict:
+    """
+    距離,馬場種別,馬場状態等を格納するdictをhtmlから取得する。
+    """
+    soup = BeautifulSoup(html, "html.parser")
+    track_condition = None
+    if tag := soup.select_one("div.RaceData01 > span.Item03"):
+        track_condition = tag.get_text(strip=True).split(":")[1]
+    if tag := soup.select_one("div.RaceData01"):
+        print(tag.get_text(strip=True))
+    return {"馬場状態": track_condition}
+
+
 def racecard(html: str) -> pd.DataFrame:
     """
     馬名,性別,馬齢,斤量,馬体重,馬体重増減,枠,馬番,騎手,厩舎,オッズ,人気を列とする形式の出馬表をhtmlから取得する。
@@ -80,7 +93,6 @@ def racecard(html: str) -> pd.DataFrame:
                 "人気": popularity,
             }
         )
-        print(horses[-1])
     df = pd.DataFrame(horses)
     if not df.empty:
         str_cols = ["馬名", "性別", "騎手", "厩舎"]
@@ -91,3 +103,34 @@ def racecard(html: str) -> pd.DataFrame:
             df[col] = pd.to_numeric(df[col], errors="coerce")
     df = df.sort_values("人気", ignore_index=True)
     return df
+
+
+def race_date_to_race_id(html: str) -> dict:
+    calendar = {}
+    soup = BeautifulSoup(html, "html.parser")
+    date_pattern = re.compile(r"(\d+)年(\d+)月(\d+)日")
+    date = None
+    if tag := soup.select_one("title"):
+        title = tag.get_text(strip=True)
+        if match := date_pattern.search(title):
+            year, month, day = match.groups()
+            date = f"{year}-{month}-{day}"
+            calendar[date] = {}
+    racecourse_pattern = re.compile(r"\d+回(.+)\d+日目")
+    racecourse = None
+    race_id_url_pattern = re.compile(r"race_id=(\d+)")
+    for dl in soup.select("dl.RaceList_DataList"):
+        if datatitle := dl.select_one("p.RaceList_DataTitle"):
+            if match := racecourse_pattern.match(datatitle.get_text(strip=True)):
+                racecourse = match.group(1)
+                calendar[date][racecourse] = {}
+        for li in dl.select("ul li"):
+            if tag := li.select_one("div.Race_Num"):
+                race_num = int(tag.get_text(strip=True).replace('R', ''))
+                calendar[date][racecourse][race_num] = None
+            if a := li.select_one("a"):
+                race_id_url = str(a.get("href"))
+                if match := race_id_url_pattern.search(race_id_url):
+                    race_id = match.group(1)
+                    calendar[date][racecourse][race_num] = race_id
+    return calendar

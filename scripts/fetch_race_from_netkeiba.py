@@ -1,32 +1,37 @@
+import json
 from pathlib import Path
 import argparse
 
 import pandas as pd
 
-from __init__ import parser_finder
-from umaev.scraping import fetch_html
+import __init__ # noqa
 
+from umaev.scraping import fetch_html
+import html_parsers.netkeiba
 
 def run(race_id: str | None = None, output_dir: Path | None = None) -> pd.DataFrame:
     if race_id is None:
         race_id = input("netkeibaレースidを入力してください：")
 
     url = rf"https://race.netkeiba.com/race/shutuba.html?race_id={race_id}"
-    if parser := parser_finder.find(url):
-        racecard = parser(fetch_html(url))
+    html = fetch_html(url)
+    racecard = html_parsers.netkeiba.racecard(html)
+    raceinfo = html_parsers.netkeiba.raceinfo(html)
 
     print(racecard)
+    print(raceinfo)
 
     if output_dir:
         output_dir.mkdir(parents=True, exist_ok=True)
-        save_path = output_dir / f"{race_id}.csv"
-        racecard.to_csv(save_path, index=False, encoding="utf-8-sig")
-        print(f"次の場所に保存しました: {save_path}")
+        racecard.to_csv(output_dir / "racecard.csv", index=False, encoding="utf-8-sig")
+        with open(output_dir / "raceinfo.json", "w", encoding="utf-8") as f:
+            json.dump(raceinfo, f, ensure_ascii=False, indent=4)
+        print(f"次のディレクトリに保存しました: {output_dir}")
     return racecard
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Netkeibaの出馬表を取得します")
+    parser = argparse.ArgumentParser(description="Netkeibaからレース情報（出馬表等）を取得します")
     parser.add_argument(
         "-i", "--race-id", type=str, help="NetkeibaのレースID (例: 202501010101)"
     )
