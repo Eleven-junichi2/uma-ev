@@ -24,7 +24,7 @@ def run(
                 date_to_race_id = json.load(f)
                 if race_date is None and race_course is None and race_num is None:
                     print(
-                        "レース情報取得のために、開催日程・レース番号からnetkeibaレースidを検索します。"
+                        "レース情報取得のために、開催日・レース番号からnetkeibaレースidを検索します。"
                     )
                 if race_date is None:
                     race_date = input("開催日程（書式：西暦4桁-月2桁-日2桁）を入力：")
@@ -58,7 +58,7 @@ if __name__ == "__main__":
         description="netkeibaからレース情報（出馬表等）を取得します"
     )
     parser.add_argument(
-        "-r", "--race-id", type=str, help="取得するレースを指定するためのnetkeibaレースID。指定しない場合、開催日程・レース番号からレースを指定する方法を利用してください"
+        "-r", "--race-id", type=str, help="取得するレースを指定するためのnetkeibaレースID。指定しない場合、日程・レース番号キーで指定する方法を利用してください"
     )
     parser.add_argument(
         "-m",
