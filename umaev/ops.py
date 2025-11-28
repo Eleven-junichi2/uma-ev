@@ -16,3 +16,6 @@ def standardize(s: pd.Series) -> pd.Series:
     if s.std() == 0:
         return s - s.mean() # 分散0の場合は全て0にする
     return (s - s.mean()) / s.std()
+
+def identity(x: pd.Series) -> pd.Series:
+    return x
