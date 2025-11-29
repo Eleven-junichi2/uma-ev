@@ -3,6 +3,8 @@ import argparse
 
 import pandas as pd
 
+import __init__  # noqa
+
 from umaev.scraping import fetch_html
 from html_parsers import muryou_keiba_ai
 

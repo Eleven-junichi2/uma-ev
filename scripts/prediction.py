@@ -6,14 +6,14 @@ import pandas as pd
 
 import __init__  # noqa: F401
 from umaev.predictor import prediction
-from umaev.calc import normalize, softmax, standardize
+from umaev.calc import normalize, softmax, standardize, identity
 
 
 def run(recipe_filepath: Path, data_dir: Path, output_dir: Path):
     with open(recipe_filepath, encoding="utf-8") as f:
         recipe = json.load(f)
     # recipe["racecard"]の名前のcsvを探しracecardを設定
-    racecard = pd.read_csv(data_dir / "racecards" / rf"{recipe['racecard']}.csv")
+    racecard = pd.read_csv(data_dir / "race" / recipe['race_date'] / recipe["racecourse"] / recipe["race_num"] / "racecard.csv")
     # ---
     factors_list: list[pd.DataFrame] = []
     for factors in recipe["factors"]:
@@ -26,12 +26,13 @@ def run(recipe_filepath: Path, data_dir: Path, output_dir: Path):
             "normalize": normalize,
             "softmax": softmax,
             "standardize": standardize,
+            "identity": identity,
         },
         weights=recipe["weights"],
     )
     print(df)
     output_dir.mkdir(exist_ok=True)
-    save_filepath = output_dir / rf"{recipe['racecard']}"
+    save_filepath = output_dir / rf"{recipe['race_date']}_{recipe["racecourse"]}_{recipe["race_num"]}"
     df.to_csv(save_filepath.with_suffix(".csv"))
     df.to_html(save_filepath.with_suffix(".html"))
 
