@@ -17,7 +17,7 @@ def run(
     race_course: str | None = None,
     race_num: str | None = None,
     racecard_n_info_dir: Path | None = None,
-    name2netkeiba_horse_id_filepath:  Path | None = None,
+    name2netkeiba_horse_id_filepath: Path | None = None,
 ) -> pd.DataFrame:
     if date_to_race_id_filepath:
         if date_to_race_id_filepath.exists():
@@ -41,14 +41,18 @@ def run(
     html = fetch_html(url)
     racecard = html_parsers.netkeiba.racecard(html)
     raceinfo = html_parsers.netkeiba.raceinfo(html)
-    new_name2netkeiba_horse_id_data = html_parsers.netkeiba.name_to_horse_id_from_racecard(html)
+    new_name2netkeiba_horse_id_data = (
+        html_parsers.netkeiba.name_to_horse_id_from_racecard(html)
+    )
 
     print(racecard)
     print(raceinfo)
 
     if racecard_n_info_dir:
         racecard_n_info_dir.mkdir(parents=True, exist_ok=True)
-        racecard.to_csv(racecard_n_info_dir / "racecard.csv", index=False, encoding="utf-8-sig")
+        racecard.to_csv(
+            racecard_n_info_dir / "racecard.csv", index=False, encoding="utf-8-sig"
+        )
         with open(racecard_n_info_dir / "raceinfo.json", "w", encoding="utf-8") as f:
             json.dump(raceinfo, f, ensure_ascii=False, indent=4)
         print(f"次のディレクトリに保存しました: {racecard_n_info_dir}")
@@ -57,7 +61,7 @@ def run(
         if name2netkeiba_horse_id_filepath.exists():
             with open(name2netkeiba_horse_id_filepath, "r", encoding="utf-8") as f:
                 name2netkeiba_horse_id = json.load(f)
-        name2netkeiba_horse_id .update(new_name2netkeiba_horse_id_data)
+        name2netkeiba_horse_id.update(new_name2netkeiba_horse_id_data)
         with open(name2netkeiba_horse_id_filepath, "w", encoding="utf-8") as f:
             json.dump(name2netkeiba_horse_id, f, ensure_ascii=False, indent=4)
         print(f"次のパスに保存しました: {name2netkeiba_horse_id_filepath}")
@@ -69,7 +73,10 @@ if __name__ == "__main__":
         description="netkeibaからレース情報（出馬表等）を取得します"
     )
     parser.add_argument(
-        "-r", "--race-id", type=str, help="取得するレースを指定するためのnetkeibaレースID。指定しない場合、日程・レース番号キーで指定する方法を利用してください"
+        "-r",
+        "--race-id",
+        type=str,
+        help="取得するレースを指定するためのnetkeibaレースID。指定しない場合、日程・レース番号キーで指定する方法を利用してください",
     )
     parser.add_argument(
         "-m",
@@ -94,7 +101,7 @@ if __name__ == "__main__":
         "--race-num",
         type=str,
         help="レース番号。netkeibaレースid辞書からidを検索するために利用される",
-    )    
+    )
     parser.add_argument(
         "-o",
         "--racecard-n-info-dir",
@@ -105,7 +112,7 @@ if __name__ == "__main__":
         "-i",
         "--name2netkeiba-horse-id-filepath",
         type=Path,
-        help="馬名に対応するnetkeiba馬idの辞書の保存先ファイルパス(指定しない場合は保存しません)"
+        help="馬名に対応するnetkeiba馬idの辞書の保存先ファイルパス(指定しない場合は保存しません)",
     )
     args = parser.parse_args()
     run(
@@ -115,5 +122,5 @@ if __name__ == "__main__":
         race_date=args.race_date,
         race_num=args.race_num,
         racecard_n_info_dir=args.racecard_n_info_dir,
-        name2netkeiba_horse_id_filepath=args.name2netkeiba_horse_id_filepath
+        name2netkeiba_horse_id_filepath=args.name2netkeiba_horse_id_filepath,
     )
