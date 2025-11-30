@@ -1,7 +1,6 @@
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 
-
 def fetch_html(url: str) -> str:
     driver_options = Options()
     driver_options.add_argument("--headless")

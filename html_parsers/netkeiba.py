@@ -66,7 +66,9 @@ def racecard(html: str) -> pd.DataFrame:
         gender = gender_and_age[0]
         age = gender_and_age[1:]
         impost = cells[5].get_text(strip=True)  # 斤量を取得
-        if weight_and_change := cells[8].get_text(strip=True):
+        weight_and_change = cells[8].get_text(strip=True)
+        if weight_and_change and weight_and_change != "--":
+            # 取り消しで"--"が馬体重セルに入るので条件分岐で対策
             weight, weight_change = weight_and_change.split("(")
             weight_change = weight_change[:-1]
         else:
@@ -134,3 +136,19 @@ def race_date_to_race_id(html: str) -> dict:
                     race_id = match.group(1)
                     calendar[date][racecourse][race_num] = race_id
     return calendar
+
+def name_to_horse_id_from_racecard(html) -> dict:
+    name_to_horse_id = {}
+    soup = BeautifulSoup(html, "html.parser")
+    html_table = soup.select_one("table.Shutuba_Table > tbody")
+    if html_table is None:
+        print("データ取得先のテーブルが見つかりませんでした。")
+        print("URLやレースIDが正しいか確認してください。")
+        sys.exit(1)
+    for html_row in html_table.find_all("tr", {"class": "HorseList"}):
+        cells = html_row.find_all("td")
+        horse_name = cells[3].get_text(strip=True)
+        if tag := cells[3].select_one("a"):
+            id = str(tag.get("href")).split("/")[-1]
+        name_to_horse_id[horse_name] = id
+    return name_to_horse_id
