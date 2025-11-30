@@ -42,8 +42,8 @@ def raceinfo(html: str) -> dict:
     track_condition = None
     if tag := soup.select_one("div.RaceData01 > span.Item03"):
         track_condition = tag.get_text(strip=True).split(":")[1]
-    if tag := soup.select_one("div.RaceData01"):
-        print(tag.get_text(strip=True))
+    # if tag := soup.select_one("div.RaceData01"):
+    # print(tag.get_text(strip=True))
     return {"馬場状態": track_condition}
 
 
@@ -128,7 +128,7 @@ def race_date_to_race_id(html: str) -> dict:
                 calendar[date][racecourse] = {}
         for li in dl.select("ul li"):
             if tag := li.select_one("div.Race_Num"):
-                race_num = int(tag.get_text(strip=True).replace('R', ''))
+                race_num = int(tag.get_text(strip=True).replace("R", ""))
                 calendar[date][racecourse][race_num] = None
             if a := li.select_one("a"):
                 race_id_url = str(a.get("href"))
@@ -136,6 +136,7 @@ def race_date_to_race_id(html: str) -> dict:
                     race_id = match.group(1)
                     calendar[date][racecourse][race_num] = race_id
     return calendar
+
 
 def name_to_horse_id_from_racecard(html) -> dict:
     name_to_horse_id = {}
@@ -152,3 +153,90 @@ def name_to_horse_id_from_racecard(html) -> dict:
             id = str(tag.get("href")).split("/")[-1]
         name_to_horse_id[horse_name] = id
     return name_to_horse_id
+
+
+def pedigree(html) -> dict:
+    # pedigree_df = pd.DataFrame()
+    pedigree_data = {"馬名": "", "父": "", "母父": "", "父父": ""}
+    soup = BeautifulSoup(html, "html.parser")
+    # print(soup)
+    if html_table := soup.select_one("table.blood_table > tbody"):
+        cells = html_table.select("tr td")
+        for (i, tag), family in zip(
+            enumerate(cells),
+            (
+                "父",
+                "父父",
+                "父父父",
+                "父父父父",
+                "父父父父父",
+                "父父父父母",
+                "父父父母",
+                "父父父母父",
+                "父父父母母",
+                "父父母",
+                "父父母父",
+                "父父母父父",
+                "父父母父母",
+                "父父母母",
+                "父父母母父",
+                "父父母母母",
+                "父母",
+                "父母父",
+                "父母父父",
+                "父母父父父",
+                "父母父父母",
+                "父母父母",
+                "父母父母父o",
+                "父母父母母",
+                "父母母",
+                "父母母父",
+                "父母母父父",
+                "父母母父母",
+                "父母母母",
+                "父母母母父",
+                "父母母母母",
+                "母",
+                "母父",
+                "母父父",
+                "母父父父",
+                "母父父父父",
+                "母父父父母",
+                "母父父母",
+                "母父父母父",
+                "母父父母母",
+                "母父母",
+                "母父母父",
+                "母父母父父",
+                "母父母父母",
+                "母父母母",
+                "母父母母父",
+                "母父母母母",
+                "母母",
+                "母母父",
+                "母母父父",
+                "母母父父父",
+                "母母父父母",
+                "母母父母",
+                "母母父母父",
+                "母母父母母",
+                "母母母",
+                "母母母父",
+                "母母母父父",
+                "母母母父母",
+                "母母母母",
+                "母母母母父",
+                "母母母母母",
+            ),
+        ):
+            if horse := tag.select_one("a"):
+                name = horse.get_text().split("\n")[0].strip()
+                pedigree_data[family] = name
+    else:
+        print("データ取得先のテーブルが見つかりませんでした。")
+        print("URLやレースID、プログラムが正しいか確認してください。")
+        sys.exit(1)
+    if tag := soup.select_one("div.horse_title h1"):
+        pedigree_data["馬名"] = tag.get_text(strip=True)
+    # print(pedigree_data)
+    return pedigree_data

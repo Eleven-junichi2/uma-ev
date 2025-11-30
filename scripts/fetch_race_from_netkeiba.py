@@ -34,6 +34,8 @@ def run(
                 if race_num is None:
                     race_num = input("レース番号を入力：")
                 race_id = date_to_race_id[race_date][race_course][race_num]
+                if racecard_n_info_dir is None:
+                    racecard_n_info_dir = Path(fr"data/race/{race_date}/{race_course}/{race_num}/")
     if race_id is None:
         race_id = input("netkeibaレースidを入力：")
 
@@ -106,7 +108,7 @@ if __name__ == "__main__":
         "-o",
         "--racecard-n-info-dir",
         type=Path,
-        help="出馬表データとレース条件データの保存先のディレクトリパス(指定しない場合は保存しません)",
+        help="出馬表データとレース条件データの保存先のディレクトリパス",
     )
     parser.add_argument(
         "-i",
