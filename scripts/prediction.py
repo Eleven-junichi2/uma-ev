@@ -13,11 +13,17 @@ def run(recipe_filepath: Path, data_dir: Path, output_dir: Path):
     with open(recipe_filepath, encoding="utf-8") as f:
         recipe = json.load(f)
     # recipe["racecard"]の名前のcsvを探しracecardを設定
-    racecard = pd.read_csv(data_dir / "race" / recipe['race_date'] / recipe["racecourse"] / recipe["race_num"] / "racecard.csv")
+    race_dir = data_dir / "race" / recipe['race_date'] / recipe["racecourse"] / recipe["race_num"]
+    racecard = pd.read_csv(race_dir / "racecard.csv")
     # ---
     factors_list: list[pd.DataFrame] = []
-    for factors in recipe["factors"]:
-        factors_list.append(pd.read_csv(data_dir / "factors" / rf"{factors}.csv"))
+    for factor in recipe["factors"]:
+        factor_filepath = data_dir / "factors" / rf"{factor}.csv"
+        if factor_filepath.exists():
+            factors_list.append(pd.read_csv(factor_filepath))
+        race_factor_filepath = race_dir / "factors" / rf"{factor}.csv"
+        if race_factor_filepath.exists():
+            factors_list.append(pd.read_csv(race_factor_filepath))
     df = prediction(
         racecard=racecard,
         factors_list=factors_list,

@@ -10,6 +10,8 @@ def prediction(
     operations: dict[str, Callable[..., pd.Series]],
     pipelines: dict[str, list[str]],
 ) -> pd.DataFrame:
+    """
+    """
     df = racecard.copy()
     for factors in factors_list:
         join_key = factors.columns[0]

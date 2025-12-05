@@ -6,7 +6,6 @@ import sys
 import time
 
 import pandas as pd
-import requests
 
 import __init__  # noqa
 

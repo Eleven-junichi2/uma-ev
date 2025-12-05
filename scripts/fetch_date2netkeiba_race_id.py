@@ -43,7 +43,7 @@ if __name__ == "__main__":
     )
     parser.add_argument("-r", "--race-num", type=int, help="レース番号")
     parser.add_argument(
-        "-o", "--output-filepath", type=Path, help="更新（保存）先jsonファイルのパス"
+        "-o", "--output-filepath", type=Path, help="更新（保存）先jsonファイルのパス(指定しないと保存しません)"
     )
     args = parser.parse_args()
     run(date=args.date, output_filepath=args.output_filepath)
