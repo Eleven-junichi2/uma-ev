@@ -41,7 +41,7 @@ def run(
         html_parsers.netkeiba.name_to_horse_id_from_racecard(html)
     )
 
-    race_dir = Path(f"data/{race_date}/{race_course}/{race_num}/")
+    race_dir = Path(f"data/race/{race_date}/{race_course}/{race_num}/")
     race_dir.mkdir(parents=True, exist_ok=True)
     racecard.to_csv(race_dir / "racecard.csv", index=False, encoding="utf-8-sig")
     with open(race_dir / "raceinfo.json", "w", encoding="utf-8") as f:
