@@ -35,7 +35,7 @@ if __name__ == "__main__":
         "-o",
         "--output-filepath",
         type=Path,
-        help="保存先のファイルパス",
+        help="保存先のファイルパス（指定なしの場合デフォルトの場所に保存）",
     )
     args = parser.parse_args()
     run(url=args.url, output_filepath=args.output_filepath)
