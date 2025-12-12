@@ -20,9 +20,11 @@ def run(recipe_filepath: Path, data_dir: Path, output_dir: Path):
     for factor in recipe["factors"]:
         factor_filepath = data_dir / "factors" / rf"{factor}.csv"
         if factor_filepath.exists():
+            print(f"Loaded global factor: {factor}") # デバッグ用
             factors_list.append(pd.read_csv(factor_filepath))
         race_factor_filepath = race_dir / "factors" / rf"{factor}.csv"
         if race_factor_filepath.exists():
+            print(f"Loaded race factor: {factor}") # デバッグ用
             factors_list.append(pd.read_csv(race_factor_filepath))
     df = prediction(
         racecard=racecard,
