@@ -1,3 +1,4 @@
+# TODO: Error handling
 from pathlib import Path
 import argparse
 import json
@@ -10,6 +11,10 @@ from umaev.calc import normalize, softmax, standardize, identity
 
 
 def run(recipe_filepath: Path, data_dir: Path, output_dir: Path):
+    """レシピファイルに基づいて競馬予想（期待値計算）を実行する
+
+    
+    """
     with open(recipe_filepath, encoding="utf-8") as f:
         recipe = json.load(f)
     # recipe["racecard"]の名前のcsvを探しracecardを設定
